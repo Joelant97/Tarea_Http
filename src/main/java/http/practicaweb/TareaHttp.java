@@ -2,15 +2,19 @@ package http.practicaweb;
 
 
 import org.apache.logging.log4j.Logger;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import org.apache.logging.log4j.LogManager;
-
+import org.jsoup.nodes.Element;
 
 
 
@@ -39,11 +43,16 @@ public class TareaHttp{
     //Funcion para dibujar el menu
     private void menuOpciones() {
         System.out.println("*----------------------------Menu-----------------------------*");
+        System.out.println("*                                                             *");
         System.out.println("*--> Caso           [A]                                       *");
         System.out.println("*--> Caso           [B]                                       *");
         System.out.println("*--> Caso           [C]                                       *");
+        System.out.println("*--> Caso           [D]                                       *");
+        System.out.println("*--> Caso           [E]                                       *");
+        System.out.println("*--> Caso           [F]                                       *");
         System.out.println("*--> Cambiar de URL [J]                                       *");
         System.out.println("*--> Salir          [S]                                       *");
+        System.out.println("*                                                             *");
         System.out.println("---------------------------------------------------------------");
     }
 
@@ -115,6 +124,22 @@ public class TareaHttp{
                             apartadoC();
                             separarOpcion();
                             break;
+
+                        case 'D':
+                            separarOpcion();
+                            apartadoD();
+                            separarOpcion();
+                            break;
+                        case 'E':
+                            separarOpcion();
+                            apartadoE();
+                            separarOpcion();
+                            break;
+                        case 'F':
+                            separarOpcion();
+                            apartadoF();
+                            separarOpcion();
+                            break;
                         case 'J':
                             break;
                         case 'S':
@@ -173,7 +198,80 @@ public class TareaHttp{
         }
     }
 
+    //indicar cantidad de formularios (form), categorizados por el metodo implementado POST o GET.
+
+    private void apartadoD() {
+        try {
+
+            int[] sizePost = {0};
+            int[] sizeGet = {0};
+
+            document.getElementsByTag("form").forEach(element -> {
+                element.getElementsByAttributeValue("method", "post").forEach(element1 -> {
+                    sizePost[0]++;
+                });
+            });
+
+            document.getElementsByTag("form").forEach(element -> {
+                element.getElementsByAttributeValue("method", "get").forEach(element1 -> {
+                    sizeGet[0]++;
+                });
+            });
+            System.out.println("Cantidad de formularios con GET : " + sizeGet[0]);
+
+            System.out.println("Cantidad de formularios con POST: " + sizePost[0]);
+
+        } catch (NoSuchElementException e) {
+            logger.debug("[Error] --> el elemento no Existe.", e.getMessage());
+        }
+
+    }
+
+    //En cada formulario mostrar campos de tipo input y su tipo que contiene en el documento HTML.
+
+    private void apartadoE() {
+        try {
+            for (Element elemento : document.getElementsByTag("form")) {
+                System.out.println(elemento);
+            }
+        } catch (NoSuchElementException e) {
+
+            logger.debug("[Error] --> el elemento no Existe.", e.getMessage());
+
+        }
+
+    }
+
+    //En cada formulario parseado, identificar que el metodo de envío sea el método POST
+    // y enviar un petición al servidor, con el parámetro llamado asignatura y valor
+    //practica1 y crear un header llamado matricula con el valor correspondiente a matrícula asignada.
+    //mostrar la respuesta por la salida estandar.
+    private void apartadoF() {
+
+        Document doc = null;
+        Map<String, String> parametros = new HashMap<>();
+
+        try {
+            for (Element matricula: document.getElementsByTag("form")) {
+
+                String absURL = matricula.absUrl("action");
+
+                if (matricula.attr("method").equals("post")) {
+                    parametros.put("asignatura", "practica1");
+
+                    doc = Jsoup.connect(absURL)
+                            .method(Connection.Method.POST)
+                            .data(parametros)
+                            .post();
+
+                    System.out.println(doc.outerHtml());
+                }
+            }
+        } catch (IOException e) {
+
+            logger.debug("[Error] --> Error enviando Peticion " + url, e.getMessage());
+        }
+    }
 
 
-    
 }
