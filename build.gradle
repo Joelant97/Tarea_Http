@@ -1,14 +1,30 @@
 plugins {
     id 'java'
+
 }
 
+group 'http.practicaweb'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+
+task fatJar(type: Jar) {
+
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    manifest {
+        attributes 'Implementation-Title': 'Tarea_Http', 'Implementation-Version': version
+        attributes 'Main-Class': 'http.practicaweb.Main'
+    }
+}
+
+
 repositories {
     mavenCentral()
 }
+
 
 dependencies {
     //Apache Complements
@@ -16,6 +32,10 @@ dependencies {
 
     // Libreria jsoup HTML  https://jsoup.org/
     compile 'org.jsoup:jsoup:1.11.3'
+
+    //log4j2 para el Logger
+    compile 'org.apache.logging.log4j:log4j-core:2.8.2'
+    //compile 'org.apache.logging.log4j:log4j-core:2.11.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
